@@ -1,20 +1,34 @@
-//! By convention, root.zig is the root source file when making a library.
 const std = @import("std");
 
-pub fn bufferedPrint() !void {
-    var stdout_buffer: [1024]u8 = undefined;
-    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
-    const stdout = &stdout_writer.interface;
+pub const FileIterator = struct {
+    file: std.fs.File,
+    allocator: std.mem.Allocator,
+    buffer: *[1024]u8,
+    buffered_reader: std.fs.File.Reader,
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    pub fn next(self: *FileIterator) !?[]u8 {
+        return self.buffered_reader.interface.takeDelimiter('\n');
+    }
 
-    try stdout.flush(); // Don't forget to flush!
-}
+    pub fn deinit(self: *FileIterator) void {
+        self.file.close();
+    }
+};
 
-pub fn add(a: i32, b: i32) i32 {
-    return a + b;
-}
+pub fn makeFileIterator(
+    allocator: std.mem.Allocator,
+    file_path: []const u8,
+) !FileIterator {
+    const file = try std.fs.cwd().openFile(file_path, .{});
 
-test "basic add functionality" {
-    try std.testing.expect(add(3, 7) == 10);
+    // Allocate buffer on the heap instead of stack
+    const buffer = try allocator.create([1024]u8);
+    const buffered_reader = file.reader(buffer); // note: buffer is *[1024]u8
+
+    return FileIterator{
+        .file = file,
+        .allocator = allocator,
+        .buffer = buffer,
+        .buffered_reader = buffered_reader,
+    };
 }
