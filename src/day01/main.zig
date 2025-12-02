@@ -53,7 +53,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
 
-    var iter = try common.makeFileIterator(allocator, "src/day01/input.txt");
+    var iter = try common.makeFileIterator(allocator, "src/day01/input.txt", '\n');
     defer iter.deinit();
 
     var current: i32 = 50;
