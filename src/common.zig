@@ -13,6 +13,7 @@ pub const FileIterator = struct {
 
     pub fn deinit(self: *FileIterator) void {
         self.file.close();
+        self.allocator.destroy(self.buffer);
     }
 };
 
