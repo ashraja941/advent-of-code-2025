@@ -7,22 +7,30 @@ const print = std.debug.print;
 fn processLine(line: []const u8) !u64 {
     const len = line.len;
     var maxFound: u64 = 0;
+
+    maxFound = maxDigits(line[0 .. len - 1], 12).?;
+    return maxFound;
+}
+
+fn maxDigits(line: []const u8, count: u8) ?u64 {
+    if (count > line.len) return null;
+    if (count == 0) return 0;
     const zeroValue: u8 = @intCast('0');
 
-    for (0..len - 2) |i| {
-        var buffer: [100]u8 = undefined;
-        for (i + 1..len - 1) |j| {
-            // print("{d} : {d}{d}\n", .{ j, line[i], line[j] });
-            const newNumStr = try std.fmt.bufPrint(&buffer, "{d}{d}", .{ line[i] - zeroValue, line[j] - zeroValue });
-            const newNum = try std.fmt.parseInt(u64, newNumStr, 10);
+    var target: u8 = 9;
+    while (target >= 0) : (target -= 1) {
+        for (line, 0..) |numChar, i| {
+            const num = numChar - zeroValue;
+            if (num != target) continue;
 
-            if (newNum > maxFound) {
-                maxFound = newNum;
+            if (maxDigits(line[i + 1 ..], count - 1)) |recur| {
+                const power = std.math.pow(u64, 10, count - 1);
+                return num * power + recur;
             }
         }
     }
 
-    return maxFound;
+    return null;
 }
 
 pub fn main() !void {
