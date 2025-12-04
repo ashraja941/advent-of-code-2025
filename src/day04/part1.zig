@@ -38,29 +38,22 @@ fn countPaper(grid: std.array_list.Aligned([]u8, null)) !u64 {
 
     var totalPaper: u64 = 0;
 
-    while (true) {
-        const lastTime = totalPaper;
-        for (grid.items, 0..) |row, r| {
-            for (row, 0..) |value, c| {
-                if (row.len != grid.items[0].len) {
-                    print("Row length mismatch: {d} vs {d}\n", .{ row.len, grid.items[0].len });
-                }
-                if (value == '.') {
-                    // print(".", .{});
-                    continue;
-                }
-                if (value != '@') unreachable;
-                const around = countAround(grid, '@', r, c);
-                // print("{d}", .{around});
-                if (around < 4) {
-                    totalPaper += 1;
-                    grid.items[r][c] = '.';
-                }
+    for (grid.items, 0..) |row, r| {
+        for (row, 0..) |value, c| {
+            if (row.len != grid.items[0].len) {
+                print("Row length mismatch: {d} vs {d}\n", .{ row.len, grid.items[0].len });
             }
-            // print("\n", .{});
-            // print("{d}\n", .{totalPaper});
+            if (value == '.') {
+                print(".", .{});
+                continue;
+            }
+            if (value != '@') unreachable;
+            const around = countAround(grid, '@', r, c);
+            print("{d}", .{around});
+            if (around < 4) totalPaper += 1;
         }
-        if (lastTime == totalPaper) break;
+        print("\n", .{});
+        // print("{d}\n", .{totalPaper});
     }
     return totalPaper;
 }
@@ -89,17 +82,17 @@ pub fn main() !void {
         std.mem.copyForwards(u8, copy, trimmed);
 
         try grid.append(allocator, copy);
-        // print("{s}\n", .{line});
+        print("{s}\n", .{line});
     }
 
     print("\n", .{});
 
-    // for (grid.items) |row| {
-    //     for (row) |value| {
-    //         print("{c}", .{value});
-    //     }
-    //     print("\n", .{});
-    // }
+    for (grid.items) |row| {
+        for (row) |value| {
+            print("{c}", .{value});
+        }
+        print("\n", .{});
+    }
 
     print("Final Answer : {d}\n", .{try countPaper(grid)});
 }
