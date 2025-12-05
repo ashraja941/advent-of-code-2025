@@ -88,21 +88,11 @@ pub fn main() !void {
     const sorted = try mergeIntervals(allocator, ranges);
     print("[DEBUG] parsed sorted : {any}\n", .{sorted.items});
 
-    while (try iter.next()) |search| {
-        const trimmed = if (search[search.len - 1] == '\r')
-            search[0 .. search.len - 1]
-        else
-            search;
-
-        const guess = try std.fmt.parseInt(u64, trimmed, 10);
-        try guesses.append(allocator, guess);
-    }
-
-    print("[DEBUG] parsed guesses : {any}\n", .{guesses.items});
-
     var total: u64 = 0;
-    for (guesses.items) |guess| {
-        if (intervalsContainItem(sorted, guess)) total += 1;
+    for (sorted.items) |interval| {
+        const start = interval[0];
+        const end = interval[1];
+        total += end - start + 1;
     }
 
     print("Final Output : {d}\n", .{total});
