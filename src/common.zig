@@ -3,7 +3,7 @@ const std = @import("std");
 pub const FileIterator = struct {
     file: std.fs.File,
     allocator: std.mem.Allocator,
-    buffer: *[1024]u8,
+    buffer: *[4096]u8,
     buffered_reader: std.fs.File.Reader,
     delimiter: u8,
 
@@ -25,7 +25,7 @@ pub fn makeFileIterator(
     const file = try std.fs.cwd().openFile(file_path, .{});
 
     // Allocate buffer on the heap instead of stack
-    const buffer = try allocator.create([1024]u8);
+    const buffer = try allocator.create([4096]u8);
     const buffered_reader = file.reader(buffer); // note: buffer is *[1024]u8
 
     return FileIterator{
